@@ -1,17 +1,17 @@
 package event
 
 import (
-	"fmt"
 	"sns/dataaccess"
+	"sns/models"
 	model "sns/models"
 
 	"github.com/sirupsen/logrus"
 )
 
 type SvcInterface interface {
-	Get(string) string
-	RegisterEvent(model.Event) string
-	GetEventsList() string
+	Get(string) (*models.Event, error)
+	RegisterEvent(model.Event) error
+	GetEventsList() ([]*models.Event, error)
 }
 
 var logger *logrus.Entry
@@ -32,20 +32,30 @@ func NewSvc(client *dataaccess.PostgresClient, log *logrus.Entry) *Svc {
 	}
 }
 
-func (s *Svc) RegisterEvent(event model.Event) string {
-	//var event model.Event
-	//json.Unmarshal(req, &event)
+func (s *Svc) RegisterEvent(event model.Event) error {
 	logger.Infof("Registering event", event)
-	s.CreateEvent(&event)
-	return "event registered"
+	return s.CreateEvent(&event)
 
 }
 
-func (s *Svc) Get(id string) string {
-	fmt.Println("Returning Event of Id ", id)
-	return "single event"
+func (s *Svc) Get(id string) (*models.Event, error) {
+	logger.Infof("Returning Event of ID", id)
+	event, err := s.GetEvent(id)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+	return event, nil
 }
 
-func (s *Svc) GetEventsList() string {
-	return "events list"
+func (s *Svc) GetEventsList() ([]*models.Event, error) {
+	logger.Info("Returning list of events")
+	events, err := s.GetAllEvents()
+	if err != nil {
+		logger.Error(err)
+
+		return nil, err
+	}
+	return events, nil
+
 }

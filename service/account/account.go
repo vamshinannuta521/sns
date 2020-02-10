@@ -44,6 +44,7 @@ func (s *Svc) Get(accountID string) (*models.Account, error) {
 }
 
 func (s *Svc) GetList() ([]*models.Account, error) {
+	logger.Infof("Returning list of accounts")
 	accounts, err := s.GetAllAccounts()
 	if err != nil {
 		logger.Error(err)
