@@ -5,10 +5,17 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+<<<<<<< HEAD
+=======
+
+	"sns/models"
+>>>>>>> master
 	"sns/service/account"
 	"sns/service/action"
 	"sns/service/event"
 	"sns/service/trigger"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Handler struct {
@@ -18,10 +25,16 @@ type Handler struct {
 	triggerSvc trigger.SvcInterface
 }
 
+var logger *logrus.Entry
+
 func NewHandler(eventSvc event.SvcInterface,
 	accountSvc account.SvcInterface,
 	actionSvc action.SvcInterface,
-	triggerSvc trigger.SvcInterface) *Handler {
+	triggerSvc trigger.SvcInterface,
+	log *logrus.Entry) *Handler {
+
+	logger = log
+
 	return &Handler{
 		eventSvc:   eventSvc,
 		accountSvc: accountSvc,
@@ -53,6 +66,15 @@ func (handler *Handler) Default(w http.ResponseWriter, r *http.Request) {
 //GetEvent handler
 func (handler *Handler) GetEvent(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, handler.eventSvc.Get())
+}
+//DefaultHandler handler
+func (handler *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
+
+	err := handler.accountSvc.Create(&models.Account{
+		Name: "vamshi",
+	})
+	logger.Error(err)
+	fmt.Fprint(w, "success done")
 }
 
 //GetEventsList handler

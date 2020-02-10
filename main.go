@@ -4,23 +4,33 @@ import (
 	"fmt"
 	"net/http"
 
+	"sns/dataaccess"
 	"sns/handler"
 	"sns/routes"
 	"sns/service/account"
 	"sns/service/action"
 	"sns/service/event"
 	"sns/service/trigger"
+
+	"github.com/sirupsen/logrus"
 )
 
+var log = logrus.NewEntry(logrus.New())
+
 func main() {
-	fmt.Println("hi")
+	fmt.Println("main started")
 
-	eventSvc := event.NewSvc()
-	accountSvc := account.NewSvc()
-	actionSvc := action.NewSvc()
-	triggerSvc := trigger.NewSvc()
+	dbclient, err := dataaccess.NewClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	handler := handler.NewHandler(eventSvc, accountSvc, actionSvc, triggerSvc)
+	eventSvc := event.NewSvc(dbclient, log)
+	accountSvc := account.NewSvc(dbclient, log)
+	actionSvc := action.NewSvc(dbclient, log)
+	triggerSvc := trigger.NewSvc(dbclient, log)
+
+	handler := handler.NewHandler(eventSvc, accountSvc, actionSvc, triggerSvc, log)
 
 	//initialize router with handler
 	router := routes.NewRouter(handler)

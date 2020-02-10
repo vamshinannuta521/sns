@@ -1,73 +1,59 @@
 package dataaccess
 
 import (
+	"database/sql"
+	"errors"
+
 	"sns/models"
 )
 
-func CreateAccount(account *models.Account) error {
-	pgClient := PostgresClient{}
-	err := pgClient.OpenDb("abcd", "efgh")
-	if err != nil {
-		return err
-	}
-	defer pgClient.DB.close()
-	sqlInsertEvent := ` INSERT INTO Account (id, name) VALUES ($1, $2)`
-	_, err = pgClient.DB.Exec(sqlInsertEvent, account.ID, account.Name)
+func (cl *PostgresClient) CreateAccount(account *models.Account) error {
+	query := ` INSERT INTO Account (name) VALUES ($1)`
+	_, err := cl.DB.Exec(query, account.Name)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func GetAccount(account_uuid string) (*models.Event, error) {
-	pgClient := PostgresClient{}
-	err := pgClient.OpenDb("abcd", "efgh")
-	if err != nil {
-		return err
-	}
-	defer pgClient.DB.close()
-	sqlInsertEvent := ` SELECT id, name FROM account where id = $1`
-	rows, err = pgClient.DB.Query(sqlInsertEvent, event_uuid)
+func (cl *PostgresClient) GetAccount(accountID string) (*models.Account, error) {
+
+	query := ` SELECT id, name FROM account where id = $1`
+	rows, err := cl.DB.Query(query, accountID)
 	if err != nil {
 		return nil, err
 	}
-	r, err := getModelFromDBEntities(rows)
-	if err != nil{
-		return nil,err
+	r, err := getModelFromDBEntitiesAccount(rows)
+	if err != nil {
+		return nil, err
 	}
-	return r[0],nil
+	if len(r) == 0 {
+		return nil, errors.New("No row with given accountID")
+	}
+	return r[0], nil
 }
 
-func GetAllAccounts() ([]*models.Account, error) {
-	pgClient := PostgresClient{}
-    err := pgClient.OpenDb("abcd", "efgh")
-    if err != nil {
-        return nil, err
-    }
-	defer pgClient.DB.close()
-    sqlInsertEvent := `SELECT id, name FROM account`
-    rows, err := pgClient.DB.Query(sqlInsertEvent)
-    if err != nil {
-        return nil, err
-    }
-    return getModelFromDBEntities(rows)
+func (cl *PostgresClient) GetAllAccounts() ([]*models.Account, error) {
+	query := `SELECT id, name FROM account`
+	rows, err := cl.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	return getModelFromDBEntitiesAccount(rows)
 }
 
-
-	
-func getModelFromDBEntities(rows *sql.Rows) ([]*models.Account, error){
+func getModelFromDBEntitiesAccount(rows *sql.Rows) ([]*models.Account, error) {
 	accounts := make([]*models.Account, 0)
 
 	defer rows.Close()
 	for rows.Next() {
 		account := models.Account{}
-		err = rows.Scan(&account.Id, &account.Name, &account.CreatedBy)
+		err := rows.Scan(&account.ID, &account.Name)
 		if err != nil { //dont return 1 err, return consolidated ones
-			return nill, err
+			return nil, err
 		}
-		accounts.append(account)
+		accounts = append(accounts, &account)
 	}
 
 	return accounts, nil
 }
-
