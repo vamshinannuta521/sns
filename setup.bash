@@ -8,7 +8,7 @@
 
 psql -h localhost -U postgres -p ${PGPORT:=5432} --echo-all << END_OF_SCRIPT
 
-drop database sns;
+drop database if exists sns;
 create database sns;
 
 \c sns

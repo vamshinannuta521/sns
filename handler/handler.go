@@ -165,6 +165,8 @@ func (handler *Handler) RegisterEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sendSuccessResponse(w)
+
 }
 
 //TriggerEventHandler
@@ -250,7 +252,7 @@ func (handler *Handler) GetTrigger(w http.ResponseWriter, r *http.Request) {
 		sendBadRequestResponse(w)
 		return
 	}
-	trigger, err := handler.actionSvc.Get(triggerID)
+	trigger, err := handler.triggerSvc.Get(triggerID)
 	if err != nil {
 		sendInternalServerErrorResponse(w, err)
 		return

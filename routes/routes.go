@@ -42,5 +42,6 @@ func (r *Router) ConfigureRoutes() {
 	r.router.HandleFunc("/sns/api/v1/trigger/list", r.handler.GetTriggerList).Methods(http.MethodGet)
 	r.router.HandleFunc("/sns/api/v1/trigger/{uuid}", r.handler.GetTrigger).Methods(http.MethodGet)
 	r.router.HandleFunc("/sns/api/v1/trigger/{event}", r.handler.TriggerEvent).Methods(http.MethodPost)
+	r.router.HandleFunc("", r.handler.Default)
 
 }
