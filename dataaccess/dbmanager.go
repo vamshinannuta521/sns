@@ -6,13 +6,13 @@ import (
 )
 
 type PostgresClient struct {
-    DB *sql.DB
+	DB *sql.DB
 }
 
-func(pgClient *PostgresClient) OpenDb(dbname string, dbuser string) error{
-	db, err := sql.Open("postgres", "user="+dbuser+" dbname="+dbname+" sslmode=disable")
+func (pgClient *PostgresClient) OpenDb(dbname string, dbuser string) error {
+	db, err := sql.Open("postgres", "user="+dbuser+" dbname="+dbname+" host=localhost port=5432 sslmode=disable")
 	pgClient.DB = db
-    return err
+	return err
 }
 
 func (cl *PostgresClient) Close() (err error) {
