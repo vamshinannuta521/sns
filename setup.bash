@@ -25,7 +25,7 @@ CREATE TABLE if not exists EVENT(
    account_id integer REFERENCES Account(id) NOT NULL
 );
 
-CREATE TABLE if not exists SUBSCRIBED_EVENT_ACTION (
+CREATE TABLE if not exists Action (
    id SERIAL PRIMARY KEY,
    event_id integer REFERENCES event(id) NOT NULL,
    action_type varchar(50) NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE if not exists SUBSCRIBED_EVENT_ACTION (
    account_id integer REFERENCES account (id) not null
 );
 
-CREATE TABLE if not exists EVENT_TRIGGER_MESSAGE(
+CREATE TABLE if not exists Trigger(
 	id SERIAL PRIMARY KEY,
 	event_id  integer REFERENCES Event(id) NOT NULL,
 	message varchar(5000) default null,

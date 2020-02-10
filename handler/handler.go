@@ -144,3 +144,111 @@ func (handler *Handler) RegisterEvent(w http.ResponseWriter, r *http.Request) {
 func (handler *Handler) TriggerEvent(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("triggering event ..")
 }
+
+func (handler *Handler) CreateAction(w http.ResponseWriter, r *http.Request) {
+
+	var action models.Action
+	decoder := json.NewDecoder(r.Body)
+	decoder.Decode(&action)
+
+	err := handler.actionSvc.Create(&action)
+	if err != nil {
+		logger.Error(err)
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+
+	sendSuccessResponse(w)
+
+}
+
+func (handler *Handler) GetAction(w http.ResponseWriter, r *http.Request) {
+	pathParams := mux.Vars(r)
+	actionID, ok := pathParams["uuid"]
+	if !ok {
+		sendBadRequestResponse(w)
+		return
+	}
+	action, err := handler.actionSvc.Get(actionID)
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+
+	resp, err := json.Marshal(action)
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+	w.Write(resp)
+}
+
+func (handler *Handler) GetActionList(w http.ResponseWriter, r *http.Request) {
+
+	actions, err := handler.actionSvc.GetList()
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+
+	resp, err := json.Marshal(actions)
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+	w.Write(resp)
+}
+
+func (handler *Handler) CreateTrigger(w http.ResponseWriter, r *http.Request) {
+
+	var trigger models.Trigger
+	decoder := json.NewDecoder(r.Body)
+	decoder.Decode(&trigger)
+
+	err := handler.triggerSvc.Create(&trigger)
+	if err != nil {
+		logger.Error(err)
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+
+	sendSuccessResponse(w)
+
+}
+
+func (handler *Handler) GetTrigger(w http.ResponseWriter, r *http.Request) {
+	pathParams := mux.Vars(r)
+	triggerID, ok := pathParams["uuid"]
+	if !ok {
+		sendBadRequestResponse(w)
+		return
+	}
+	trigger, err := handler.actionSvc.Get(triggerID)
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+
+	resp, err := json.Marshal(trigger)
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+	w.Write(resp)
+}
+
+func (handler *Handler) GetTriggerList(w http.ResponseWriter, r *http.Request) {
+
+	triggers, err := handler.triggerSvc.GetList()
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+
+	resp, err := json.Marshal(triggers)
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+	w.Write(resp)
+}

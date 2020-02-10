@@ -25,12 +25,12 @@ func (cl *PostgresClient) GetEvent(eventID string) (*models.Event, error) {
 	if err != nil {
 		return nil, err
 	}
-	r, err := getModelFromDBEntities(rows)
+	r, err := getModelFromDBEntitiesEvent(rows)
 	if err != nil {
 		return nil, err
 	}
 	if len(r) == 0 {
-		return nil, errors.New("No row with given accountID")
+		return nil, errors.New("No row with given eventID")
 	}
 	return r[0], nil
 }
@@ -41,11 +41,11 @@ func (cl *PostgresClient) GetAllEvents() ([]*models.Event, error) {
 	if err != nil {
 		return nil, err
 	}
-	return getModelFromDBEntities(rows)
+	return getModelFromDBEntitiesEvent(rows)
 
 }
 
-func getModelFromDBEntities(rows *sql.Rows) ([]*models.Event, error) {
+func getModelFromDBEntitiesEvent(rows *sql.Rows) ([]*models.Event, error) {
 	events := make([]*models.Event, 0)
 
 	defer rows.Close()

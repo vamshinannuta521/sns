@@ -35,7 +35,12 @@ func (r *Router) ConfigureRoutes() {
 	r.router.HandleFunc("/sns/api/v1/event", r.handler.RegisterEvent).Methods(http.MethodPost)
 	r.router.HandleFunc("/sns/api/v1/event/list", r.handler.GetEventsList).Methods(http.MethodGet)
 	r.router.HandleFunc("/sns/api/v1/event/{uuid}", r.handler.GetEvent).Methods(http.MethodGet)
-	r.router.HandleFunc("/sns/api/v1/subscribe", r.handler.Default).Methods(http.MethodPost)
-	r.router.HandleFunc("/sns/api/v1/trigger", r.handler.TriggerEvent).Methods(http.MethodPost)
+	r.router.HandleFunc("/sns/api/v1/action", r.handler.CreateAction).Methods(http.MethodPost)
+	r.router.HandleFunc("/sns/api/v1/action/list", r.handler.GetActionList).Methods(http.MethodGet)
+	r.router.HandleFunc("/sns/api/v1/action/{uuid}", r.handler.GetAction).Methods(http.MethodGet)
+	r.router.HandleFunc("/sns/api/v1/trigger", r.handler.CreateTrigger).Methods(http.MethodPost)
+	r.router.HandleFunc("/sns/api/v1/trigger/list", r.handler.GetTriggerList).Methods(http.MethodGet)
+	r.router.HandleFunc("/sns/api/v1/trigger/{uuid}", r.handler.GetTrigger).Methods(http.MethodGet)
+	r.router.HandleFunc("/sns/api/v1/trigger/{event}", r.handler.TriggerEvent).Methods(http.MethodPost)
 
 }
