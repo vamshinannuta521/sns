@@ -4,16 +4,28 @@ import (
 	"fmt"
 	"net/http"
 
+	"sns/service/account"
+	"sns/service/action"
 	"sns/service/event"
+	"sns/service/trigger"
 )
 
 type Handler struct {
-	eventSvc event.EventSvc
+	eventSvc   event.SvcInterface
+	accountSvc account.SvcInterface
+	actionSvc  action.SvcInterface
+	triggerSvc trigger.SvcInterface
 }
 
-func NewHandler(eSvc event.EventSvc) *Handler {
+func NewHandler(eventSvc event.SvcInterface,
+	accountSvc account.SvcInterface,
+	actionSvc action.SvcInterface,
+	triggerSvc trigger.SvcInterface) *Handler {
 	return &Handler{
-		eventSvc: eSvc,
+		eventSvc:   eventSvc,
+		accountSvc: accountSvc,
+		actionSvc:  actionSvc,
+		triggerSvc: triggerSvc,
 	}
 }
 
