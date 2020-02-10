@@ -2,9 +2,10 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
-
 	"sns/models"
+	model "sns/models"
 	"sns/service/account"
 	"sns/service/action"
 	"sns/service/event"
@@ -43,9 +44,27 @@ func NewHandler(eventSvc event.SvcInterface,
 	}
 }
 
-//DefaultHandler handler
+func CheckContentType(r *http.Request) bool {
+	if r.Header.Get("Content-Type") != "" {
+		if r.Header.Get("Content-Type") != "application/json" {
+			return false
+		}
+	} else {
+		return false
+	}
+	return true
+
+}
+
+//Default handler
 func (handler *Handler) Default(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w)
+}
+
+//GetEvent handler
+func (handler *Handler) GetEvent(w http.ResponseWriter, r *http.Request) {
+	eventId := returnUUID(r)
+	fmt.Fprint(w, handler.eventSvc.Get(eventId))
 }
 
 func (handler *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
@@ -100,4 +119,28 @@ func (handler *Handler) GetAccountList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(resp)
+}
+
+//GetEventsList handler
+func (handler *Handler) GetEventsList(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, handler.eventSvc.GetEventsList())
+}
+
+//RegisterEventHandler
+func (handler *Handler) RegisterEvent(w http.ResponseWriter, r *http.Request) {
+	var event model.Event
+	decoder := json.NewDecoder(r.Body)
+	decoder.Decode(&event)
+	if CheckContentType(r) {
+		fmt.Fprint(w, handler.eventSvc.RegisterEvent(event))
+
+	} else {
+		fmt.Println("Not application/json")
+	}
+
+}
+
+//TriggerEventHandler
+func (handler *Handler) TriggerEvent(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("triggering event ..")
 }

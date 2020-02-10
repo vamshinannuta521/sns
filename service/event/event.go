@@ -1,17 +1,20 @@
 package event
 
 import (
+	"fmt"
 	"sns/dataaccess"
+	model "sns/models"
 
 	"github.com/sirupsen/logrus"
 )
 
-var logger *logrus.Entry
-
 type SvcInterface interface {
-	// Get() string
-	// Create([]byte)
+	Get(string) string
+	RegisterEvent(model.Event) string
+	GetEventsList() string
 }
+
+var logger *logrus.Entry
 
 type Event struct {
 	Name      string `json:"name"`
@@ -29,9 +32,20 @@ func NewSvc(client *dataaccess.PostgresClient, log *logrus.Entry) *Svc {
 	}
 }
 
-// func (s *Svc) Create(c []byte) string {
-// 	var e Event
-// 	json.Unmarshal(c, e)
-// 	e
-// 	return "event"
-// }
+func (s *Svc) RegisterEvent(event model.Event) string {
+	//var event model.Event
+	//json.Unmarshal(req, &event)
+	logger.Infof("Registering event", event)
+	s.CreateEvent(&event)
+	return "event registered"
+
+}
+
+func (s *Svc) Get(id string) string {
+	fmt.Println("Returning Event of Id ", id)
+	return "single event"
+}
+
+func (s *Svc) GetEventsList() string {
+	return "events list"
+}

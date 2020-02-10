@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"path"
 )
 
 func sendSuccessResponse(w http.ResponseWriter) {
@@ -23,4 +24,9 @@ func sendBadRequestResponse(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusBadRequest)
 	w.Write([]byte(msg))
 	return
+
+}
+
+func returnUUID(r *http.Request) string {
+	return path.Base(r.URL.Path)
 }
