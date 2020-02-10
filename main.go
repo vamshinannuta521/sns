@@ -15,10 +15,10 @@ import (
 func main() {
 	fmt.Println("hi")
 
-	eventSvc := event.NewEventSvc()
-	accountSvc := event.NewEventSvc()
-	actionSvc := event.NewEventSvc()
-	triggerSvc := event.NewEventSvc()
+	eventSvc := event.NewSvc()
+	accountSvc := account.NewSvc()
+	actionSvc := action.NewSvc()
+	triggerSvc := trigger.NewSvc()
 
 	handler := handler.NewHandler(eventSvc, accountSvc, actionSvc, triggerSvc)
 

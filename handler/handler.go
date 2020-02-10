@@ -11,16 +11,16 @@ import (
 )
 
 type Handler struct {
-	eventSvc   event.EventSvcInterface
-	accountSvc account.AccountSvcInterface
-	actionSvc  action.ActionSvcInterface
-	triggerSvc trigger.TriggerSvcInterface
+	eventSvc   event.SvcInterface
+	accountSvc account.SvcInterface
+	actionSvc  action.SvcInterface
+	triggerSvc trigger.SvcInterface
 }
 
-func NewHandler(eventSvc event.EventSvcInterface,
-	accountSvc account.AccountSvcInterface,
-	actionSvc action.ActionSvcInterface,
-	triggerSvc trigger.TriggerSvcInterface) *Handler {
+func NewHandler(eventSvc event.SvcInterface,
+	accountSvc account.SvcInterface,
+	actionSvc action.SvcInterface,
+	triggerSvc trigger.SvcInterface) *Handler {
 	return &Handler{
 		eventSvc:   eventSvc,
 		accountSvc: accountSvc,
