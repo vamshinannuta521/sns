@@ -2,6 +2,7 @@ package account
 
 import (
 	"sns/dataaccess"
+	"sns/models"
 
 	"github.com/sirupsen/logrus"
 )
@@ -9,16 +10,11 @@ import (
 var log = logrus.NewEntry(logrus.New())
 
 type SvcInterface interface {
-	Get(string) Account
+	Get(string) (*models.Account, error)
 	Create([]byte) error
 }
 
 type Svc struct {
-}
-
-type Account struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
 }
 
 func NewSvc() *Svc {
@@ -26,21 +22,23 @@ func NewSvc() *Svc {
 }
 
 func (s *Svc) Create(payload []byte) error {
-	var account Account
+	var account models.Account
 	err := json.Unmarshal(payload, &account)
 	if err != nil {
 		log.Error(err)
 		return err
 	}
+	err = dataaccess.CreateAccount(account)
+	return err
 
 }
 
-func (s *Svc) Get(accountID string) error {
-	var account Account
-	err := json.Unmarshal(payload, &account)
+func (s *Svc) Get(accountID string) (*models.Account, error) {
+	account, err := dataaccess.GetAccount(accountID)
 	if err != nil {
 		log.Error(err)
-		return err
+		return nil, err
 	}
+	return account, nil
 
 }
