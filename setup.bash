@@ -26,7 +26,15 @@ event = "CREATE TABLE EVENT(
    CreatedBy INT REFERENCES Account(id) NOT NULL
 )"
 
+trigger = "CREATE TABLE EVENT_TRIGGER_MESSAGE(
+	ID INT PRIMARY KEY NOT NULL,
+	Event_Id  INT REFERENCES Event(id) NOT NULL,
+	Message TEXT NULL,
+	CreatedBy INT REFERENCES Account(id) NOT NULL
+)"
+
 createdb $database
 psql -d $database -c $account
 psql -d $database -c $event
 psql -d $database -c $subscription
+psql -d $database -c $trigger
