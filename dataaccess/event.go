@@ -3,16 +3,21 @@ package dataaccess
 import (
 	"database/sql"
 	"errors"
-
 	"sns/models"
+
+	"github.com/sirupsen/logrus"
 )
+
+var logger = logrus.New()
 
 func (cl *PostgresClient) CreateEvent(event *models.Event) error {
 	query := ` INSERT INTO event (name, account_id) VALUES ($1, $2)`
 	_, err := cl.DB.Exec(query, event.Name, event.AccountID)
 	if err != nil {
+		logger.Errorf("Error in create event", err.Error())
 		return err
 	}
+	logger.Infof("Successfully created event")
 	return nil
 
 }

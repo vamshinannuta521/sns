@@ -2,14 +2,11 @@ package handler
 
 import (
 	// "encoding/json"
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-<<<<<<< HEAD
-=======
-
 	"sns/models"
->>>>>>> master
+	model "sns/models"
 	"sns/service/account"
 	"sns/service/action"
 	"sns/service/event"
@@ -43,18 +40,17 @@ func NewHandler(eventSvc event.SvcInterface,
 	}
 }
 
-// func CheckContentType(r *http.Request) {
-// 	if r.Header.Get("Content-Type") != "" {
-// 		value, _ := header.ParseValueAndParams(r.Header, "Content-Type")
-// 		if value != "application/json" {
-// 			return false
-// 		}
-// 	} else {
-// 		return false
-// 	}
-// 	return true
+func CheckContentType(r *http.Request) bool {
+	if r.Header.Get("Content-Type") != "" {
+		if r.Header.Get("Content-Type") != "application/json" {
+			return false
+		}
+	} else {
+		return false
+	}
+	return true
 
-// }
+}
 
 //Default handler
 func (handler *Handler) Default(w http.ResponseWriter, r *http.Request) {
@@ -65,8 +61,10 @@ func (handler *Handler) Default(w http.ResponseWriter, r *http.Request) {
 
 //GetEvent handler
 func (handler *Handler) GetEvent(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, handler.eventSvc.Get())
+	eventId := returnUUID(r)
+	fmt.Fprint(w, handler.eventSvc.Get(eventId))
 }
+
 //DefaultHandler handler
 func (handler *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 
@@ -84,15 +82,15 @@ func (handler *Handler) GetEventsList(w http.ResponseWriter, r *http.Request) {
 
 //RegisterEventHandler
 func (handler *Handler) RegisterEvent(w http.ResponseWriter, r *http.Request) {
-	rBody, _ := ioutil.ReadAll(r.Body)
-	fmt.Fprint(w, handler.eventSvc.RegisterEvent(rBody))
-	//if CheckContentType(r) {
-	// event := models.CreateEvent(r)
+	var event model.Event
+	decoder := json.NewDecoder(r.Body)
+	decoder.Decode(&event)
+	if CheckContentType(r) {
+		fmt.Fprint(w, handler.eventSvc.RegisterEvent(event))
 
-	// } else {
-	// 	fmt.Println("Not application/json")
-	// }
-	//da.CreateEvent(&event)
+	} else {
+		fmt.Println("Not application/json")
+	}
 
 }
 
