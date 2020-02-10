@@ -4,33 +4,32 @@ import (
 	"sns/models"
 )
 
-func CreateEvent(event *models.Event) error {
+func CreateAccount(account *models.Account) error {
 	pgClient := PostgresClient{}
 	err := pgClient.OpenDb("abcd", "efgh")
 	if err != nil {
 		return err
 	}
 	defer pgClient.DB.close()
-	sqlInsertEvent := ` INSERT INTO event (id, name, createdBy) VALUES ($1, $2, $3)`
-	_, err = pgClient.DB.Exec(sqlInsertEvent, event.ID, event.CreatedBy, event.Name)
+	sqlInsertEvent := ` INSERT INTO Account (id, name) VALUES ($1, $2)`
+	_, err = pgClient.DB.Exec(sqlInsertEvent, account.ID, account.Name)
 	if err != nil {
 		return err
 	}
 	return nil
-
 }
 
-func GetEvent(event_uuid string) error {
+func GetAccount(account_uuid string) (*models.Event, error) {
 	pgClient := PostgresClient{}
 	err := pgClient.OpenDb("abcd", "efgh")
 	if err != nil {
 		return err
 	}
 	defer pgClient.DB.close()
-	sqlInsertEvent := ` SELECT id, name, createdBy FROM event where id = $1`
-	rows,err = pgClient.DB.Query(sqlInsertEvent, event_uuid)
+	sqlInsertEvent := ` SELECT id, name FROM account where id = $1`
+	rows, err = pgClient.DB.Query(sqlInsertEvent, event_uuid)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	r, err := getModelFromDBEntities(rows)
 	if err != nil{
@@ -39,14 +38,14 @@ func GetEvent(event_uuid string) error {
 	return r[0],nil
 }
 
-func GetAllEvents() ([]*models.Event, error) {
+func GetAllAccounts() ([]*models.Account, error) {
 	pgClient := PostgresClient{}
     err := pgClient.OpenDb("abcd", "efgh")
     if err != nil {
         return nil, err
     }
 	defer pgClient.DB.close()
-    sqlInsertEvent := `SELECT id, name, createdBy FROM event`
+    sqlInsertEvent := `SELECT id, name FROM account`
     rows, err := pgClient.DB.Query(sqlInsertEvent)
     if err != nil {
         return nil, err
@@ -56,18 +55,19 @@ func GetAllEvents() ([]*models.Event, error) {
 
 
 	
-func getModelFromDBEntities(rows *sql.Rows) ([]*models.Event, error){
-	events := make([]*models.Event, 0)
+func getModelFromDBEntities(rows *sql.Rows) ([]*models.Account, error){
+	accounts := make([]*models.Account, 0)
 
 	defer rows.Close()
 	for rows.Next() {
-		event := models.Event{}
-		err = rows.Scan(&event.Id, &event.Name, &event.CreatedBy)
-		if err != nil {
+		account := models.Account{}
+		err = rows.Scan(&account.Id, &account.Name, &account.CreatedBy)
+		if err != nil { //dont return 1 err, return consolidated ones
 			return nill, err
 		}
-		events.append(event)
+		accounts.append(account)
 	}
 
-	return events, nil
+	return accounts, nil
 }
+
