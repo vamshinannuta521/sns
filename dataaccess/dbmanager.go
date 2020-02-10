@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var log = logrus.NewEntry(logrus.New())
+var log = logrus.New()
 
 type PostgresClient struct {
 	DB *sql.DB

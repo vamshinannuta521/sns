@@ -1,13 +1,13 @@
 package action
 
 import (
-	// "sns/dataaccess"
+	"sns/dataaccess"
 	// "sns/models"
 
 	"github.com/sirupsen/logrus"
 )
 
-var log = logrus.NewEntry(logrus.New())
+var logger *logrus.Entry
 
 type SvcInterface interface {
 	// Get(string) (*models.SubscribedEventAction, error)
@@ -15,10 +15,14 @@ type SvcInterface interface {
 }
 
 type Svc struct {
+	*dataaccess.PostgresClient
 }
 
-func NewSvc() *Svc {
-	return &Svc{}
+func NewSvc(client *dataaccess.PostgresClient, log *logrus.Entry) *Svc {
+	logger = log
+	return &Svc{
+		PostgresClient: client,
+	}
 }
 
 // func (s *Svc) Create(payload []byte) error {

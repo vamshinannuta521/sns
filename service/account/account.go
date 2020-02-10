@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var log = logrus.NewEntry(logrus.New())
+var logger *logrus.Entry
 
 type SvcInterface interface {
 	Get(string) (*models.Account, error)
@@ -18,9 +18,8 @@ type Svc struct {
 	*dataaccess.PostgresClient
 }
 
-func NewSvc() *Svc {
-	client, _ := dataaccess.NewClient()
-
+func NewSvc(client *dataaccess.PostgresClient, log *logrus.Entry) *Svc {
+	logger = log
 	return &Svc{
 		PostgresClient: client,
 	}
@@ -28,7 +27,7 @@ func NewSvc() *Svc {
 
 func (s *Svc) Create(account *models.Account) error {
 	err := s.CreateAccount(account)
-	log.Error(err)
+	logger.Error(err)
 	return err
 
 }
@@ -36,7 +35,7 @@ func (s *Svc) Create(account *models.Account) error {
 func (s *Svc) Get(accountID string) (*models.Account, error) {
 	account, err := s.GetAccount(accountID)
 	if err != nil {
-		log.Error(err)
+		logger.Error(err)
 		return nil, err
 	}
 	return account, nil
