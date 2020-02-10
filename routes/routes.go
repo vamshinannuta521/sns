@@ -29,12 +29,12 @@ func (r *Router) GetRouter() *mux.Router {
 //ConfigureRoutes plugin routes
 func (r *Router) ConfigureRoutes() {
 
-	r.router.HandleFunc("/sns/api/v1/user", r.handler.DefaultHandler).Methods(http.MethodPost)
-	r.router.HandleFunc("/sns/api/v1/user/{uuid}", r.handler.DefaultHandler).Methods(http.MethodGet)
-	r.router.HandleFunc("/sns/api/v1/event", r.handler.DefaultHandler).Methods(http.MethodPost)
-	r.router.HandleFunc("/sns/api/v1/event/{uuid}", r.handler.DefaultHandler).Methods(http.MethodGet)
-	r.router.HandleFunc("/sns/api/v1/event/list", r.handler.DefaultHandler).Methods(http.MethodGet)
-	r.router.HandleFunc("/sns/api/v1/subscribe", r.handler.DefaultHandler).Methods(http.MethodPost)
-	r.router.HandleFunc("/sns/api/v1/trigger", r.handler.DefaultHandler).Methods(http.MethodPost)
+	r.router.HandleFunc("/sns/api/v1/user", r.handler.Default).Methods(http.MethodPost)
+	r.router.HandleFunc("/sns/api/v1/user/{uuid}", r.handler.Default).Methods(http.MethodGet)
+	r.router.HandleFunc("/sns/api/v1/event", r.handler.Default).Methods(http.MethodPost)
+	r.router.HandleFunc("/sns/api/v1/event/{uuid}", r.handler.GetEvent).Methods(http.MethodGet)
+	r.router.HandleFunc("/sns/api/v1/event/list", r.handler.Default).Methods(http.MethodGet)
+	r.router.HandleFunc("/sns/api/v1/subscribe", r.handler.Default).Methods(http.MethodPost)
+	r.router.HandleFunc("/sns/api/v1/trigger", r.handler.Default).Methods(http.MethodPost)
 
 }

@@ -6,12 +6,15 @@ import (
 
 	"sns/handler"
 	"sns/routes"
+	"sns/service/event"
 )
 
 func main() {
 	fmt.Println("hi")
 
-	handler := handler.NewHandler()
+	eventSvc := event.NewEventSvc()
+
+	handler := handler.NewHandler(eventSvc)
 
 	//initialize router with handler
 	router := routes.NewRouter(handler)
