@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 
 	"sns/models"
@@ -10,7 +10,12 @@ import (
 	"sns/service/event"
 	"sns/service/trigger"
 
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	successResponse = `success`
 )
 
 type Handler struct {
@@ -40,15 +45,59 @@ func NewHandler(eventSvc event.SvcInterface,
 
 //DefaultHandler handler
 func (handler *Handler) Default(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "success done")
+	sendSuccessResponse(w)
 }
 
-//DefaultHandler handler
 func (handler *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 
-	err := handler.accountSvc.Create(&models.Account{
-		Name: "vamshi",
-	})
-	logger.Error(err)
-	fmt.Fprint(w, "success done")
+	var account models.Account
+	decoder := json.NewDecoder(r.Body)
+	decoder.Decode(&account)
+
+	err := handler.accountSvc.Create(&account)
+	if err != nil {
+		logger.Error(err)
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+
+	sendSuccessResponse(w)
+
+}
+
+func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
+	pathParams := mux.Vars(r)
+	accountID, ok := pathParams["uuid"]
+	if !ok {
+		sendBadRequestResponse(w)
+		return
+	}
+	account, err := handler.accountSvc.Get(accountID)
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+
+	resp, err := json.Marshal(account)
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+	w.Write(resp)
+}
+
+func (handler *Handler) GetAccountList(w http.ResponseWriter, r *http.Request) {
+
+	accounts, err := handler.accountSvc.GetList()
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+
+	resp, err := json.Marshal(accounts)
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+	w.Write(resp)
 }

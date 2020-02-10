@@ -15,12 +15,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var log = logrus.NewEntry(logrus.New())
+var log *logrus.Entry
+
+func init() {
+	log = logrus.NewEntry(logrus.New())
+}
 
 func main() {
 	fmt.Println("main started")
 
-	dbclient, err := dataaccess.NewClient()
+	dbclient, err := dataaccess.NewClient(log)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -12,6 +12,7 @@ var logger *logrus.Entry
 type SvcInterface interface {
 	Get(string) (*models.Account, error)
 	Create(*models.Account) error
+	GetList() ([]*models.Account, error)
 }
 
 type Svc struct {
@@ -39,5 +40,15 @@ func (s *Svc) Get(accountID string) (*models.Account, error) {
 		return nil, err
 	}
 	return account, nil
+
+}
+
+func (s *Svc) GetList() ([]*models.Account, error) {
+	accounts, err := s.GetAllAccounts()
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+	return accounts, nil
 
 }

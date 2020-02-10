@@ -8,13 +8,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var log = logrus.New()
+var logger *logrus.Entry
 
 type PostgresClient struct {
 	DB *sql.DB
 }
 
-func NewClient() (*PostgresClient, error) {
+func NewClient(log *logrus.Entry) (*PostgresClient, error) {
+	logger = log
+
 	db, err := sql.Open("postgres", "user=postgres dbname=sns host=localhost port=5432 sslmode=disable")
 	if err != nil {
 		log.Error(err)

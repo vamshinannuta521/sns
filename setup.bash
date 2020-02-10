@@ -16,8 +16,13 @@ create database sns;
 
 CREATE TABLE if not exists ACCOUNT  (
    id SERIAL PRIMARY KEY,
-   name varchar(200) NOT NULL,
-   CONSTRAINT unique_constraint UNIQUE (name)
+   name varchar(200) NOT NULL UNIQUE
+);
+
+CREATE TABLE if not exists EVENT(
+   id SERIAL PRIMARY KEY,
+   name varchar(50) NOT NULL UNIQUE,
+   account_id integer REFERENCES Account(id) NOT NULL
 );
 
 CREATE TABLE if not exists SUBSCRIBED_EVENT_ACTION (
@@ -26,13 +31,6 @@ CREATE TABLE if not exists SUBSCRIBED_EVENT_ACTION (
    action_type varchar(50) NOT NULL,
    action_spec varchar(5000) not null,
    account_id integer REFERENCES account (id) not null
-);
-
-CREATE TABLE if not exists EVENT(
-   id SERIAL PRIMARY KEY,
-   name varchar(50) NOT NULL,
-   account_id integer REFERENCES Account(id) NOT NULL
-   CONSTRAINT unique_constraint UNIQUE (name)
 );
 
 CREATE TABLE if not exists EVENT_TRIGGER_MESSAGE(
