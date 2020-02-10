@@ -61,12 +61,6 @@ func (handler *Handler) Default(w http.ResponseWriter, r *http.Request) {
 	sendSuccessResponse(w)
 }
 
-//GetEvent handler
-func (handler *Handler) GetEvent(w http.ResponseWriter, r *http.Request) {
-	eventId := returnUUID(r)
-	fmt.Fprint(w, handler.eventSvc.Get(eventId))
-}
-
 func (handler *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	var account models.Account
@@ -106,7 +100,6 @@ func (handler *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *Handler) GetAccountList(w http.ResponseWriter, r *http.Request) {
-
 	accounts, err := handler.accountSvc.GetList()
 	if err != nil {
 		sendInternalServerErrorResponse(w, err)
@@ -118,12 +111,40 @@ func (handler *Handler) GetAccountList(w http.ResponseWriter, r *http.Request) {
 		sendInternalServerErrorResponse(w, err)
 		return
 	}
+	logger.Infof("Returning accounts list")
+	w.Write(resp)
+}
+
+//GetEvent handler
+func (handler *Handler) GetEvent(w http.ResponseWriter, r *http.Request) {
+	eventId := returnUUID(r)
+	event, err := handler.eventSvc.Get(eventId)
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+	resp, err := json.Marshal(event)
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
 	w.Write(resp)
 }
 
 //GetEventsList handler
 func (handler *Handler) GetEventsList(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, handler.eventSvc.GetEventsList())
+	events, err := handler.eventSvc.GetEventsList()
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+	resp, err := json.Marshal(events)
+	if err != nil {
+		sendInternalServerErrorResponse(w, err)
+		return
+	}
+	logger.Infof("Returning events list")
+	w.Write(resp)
 }
 
 //RegisterEventHandler
@@ -132,10 +153,16 @@ func (handler *Handler) RegisterEvent(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&event)
 	if CheckContentType(r) {
-		fmt.Fprint(w, handler.eventSvc.RegisterEvent(event))
+		err := handler.eventSvc.RegisterEvent(event)
+		if err != nil {
+			logger.Error(err)
+			sendInternalServerErrorResponse(w, err)
+			return
+		}
 
 	} else {
-		fmt.Println("Not application/json")
+		sendInternalServerErrorResponse(w, fmt.Errorf("Content type not application/json"))
+		return
 	}
 
 }
