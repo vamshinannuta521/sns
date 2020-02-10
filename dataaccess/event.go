@@ -7,23 +7,36 @@ import (
 func CreateEvent(event *models.Event) error {
 	pgClient := PostgresClient{}
 	err := pgClient.OpenDb("abcd", "efgh")
+	if err != nil {
+		return err
+	}
+	defer pgClient.DB.close()
 	sqlInsertEvent := ` INSERT INTO event (id, name, createdBy) VALUES ($1, $2, $3)`
-	pgClient.DB.Exec(sqlInsertEvent, event.ID, event.CreatedBy, event.Name)
+	_, err = pgClient.DB.Exec(sqlInsertEvent, event.ID, event.CreatedBy, event.Name)
 	if err != nil {
 		return err
 	}
 	return nil
+
 }
 
 func GetEvent(event_uuid string) error {
 	pgClient := PostgresClient{}
 	err := pgClient.OpenDb("abcd", "efgh")
-	sqlInsertEvent := ` SELECT id, name, createdBy FROM event where id = $1`
-	pgClient.DB.Exec(sqlInsertEvent, event_uuid)
 	if err != nil {
 		return err
 	}
-	return nil
+	defer pgClient.DB.close()
+	sqlInsertEvent := ` SELECT id, name, createdBy FROM event where id = $1`
+	rows,err = pgClient.DB.Query(sqlInsertEvent, event_uuid)
+	if err != nil {
+		return err
+	}
+	r, err := getModelFromDBEntities(rows)
+	if err != nil{
+		return nil,err
+	}
+	return r[0],nil
 }
 
 func GetAllEvents() ([]*models.Event, error) {
@@ -32,6 +45,7 @@ func GetAllEvents() ([]*models.Event, error) {
     if err != nil {
         return nil, err
     }
+	defer pgClient.DB.close()
     sqlInsertEvent := `SELECT id, name, createdBy FROM event`
     rows, err := pgClient.DB.Query(sqlInsertEvent)
     if err != nil {
