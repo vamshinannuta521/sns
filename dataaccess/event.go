@@ -1,18 +1,15 @@
 package dataaccess
 
 import (
+	"database/sql"
+	"errors"
+
 	"sns/models"
 )
 
-func CreateEvent(event *models.Event) error {
-	pgClient := PostgresClient{}
-	err := pgClient.OpenDb("abcd", "efgh")
-	if err != nil {
-		return err
-	}
-	defer pgClient.DB.close()
-	sqlInsertEvent := ` INSERT INTO event (id, name, createdBy) VALUES ($1, $2, $3)`
-	_, err = pgClient.DB.Exec(sqlInsertEvent, event.ID, event.CreatedBy, event.Name)
+func (cl *PostgresClient) CreateEvent(event *models.Event) error {
+	query := ` INSERT INTO event (name, account_id) VALUES ($1, $2)`
+	_, err := cl.DB.Exec(query, event.Name, event.AccountID)
 	if err != nil {
 		return err
 	}
@@ -20,53 +17,44 @@ func CreateEvent(event *models.Event) error {
 
 }
 
-func GetEvent(event_uuid string) error {
-	pgClient := PostgresClient{}
-	err := pgClient.OpenDb("abcd", "efgh")
+func (cl *PostgresClient) GetEvent(eventID string) (*models.Event, error) {
+
+	query := ` SELECT id, name, account_id FROM event where id = $1`
+	rows, err := cl.DB.Query(query, eventID)
 	if err != nil {
-		return err
-	}
-	defer pgClient.DB.close()
-	sqlInsertEvent := ` SELECT id, name, createdBy FROM event where id = $1`
-	rows,err = pgClient.DB.Query(sqlInsertEvent, event_uuid)
-	if err != nil {
-		return err
+		return nil, err
 	}
 	r, err := getModelFromDBEntities(rows)
-	if err != nil{
-		return nil,err
+	if err != nil {
+		return nil, err
 	}
-	return r[0],nil
+	if len(r) == 0 {
+		return nil, errors.New("No row with given accountID")
+	}
+	return r[0], nil
 }
 
-func GetAllEvents() ([]*models.Event, error) {
-	pgClient := PostgresClient{}
-    err := pgClient.OpenDb("abcd", "efgh")
-    if err != nil {
-        return nil, err
-    }
-	defer pgClient.DB.close()
-    sqlInsertEvent := `SELECT id, name, createdBy FROM event`
-    rows, err := pgClient.DB.Query(sqlInsertEvent)
-    if err != nil {
-        return nil, err
-    }
-    return getModelFromDBEntities(rows)
+func (cl *PostgresClient) GetAllEvents() ([]*models.Event, error) {
+	query := `SELECT id, name, account_id FROM event`
+	rows, err := cl.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	return getModelFromDBEntities(rows)
+
 }
 
-
-	
-func getModelFromDBEntities(rows *sql.Rows) ([]*models.Event, error){
+func getModelFromDBEntities(rows *sql.Rows) ([]*models.Event, error) {
 	events := make([]*models.Event, 0)
 
 	defer rows.Close()
 	for rows.Next() {
 		event := models.Event{}
-		err = rows.Scan(&event.Id, &event.Name, &event.CreatedBy)
+		err := rows.Scan(&event.ID, &event.Name, &event.AccountID)
 		if err != nil {
-			return nill, err
+			return nil, err
 		}
-		events.append(event)
+		events = append(events, &event)
 	}
 
 	return events, nil

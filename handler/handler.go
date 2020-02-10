@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"sns/models"
 	"sns/service/account"
 	"sns/service/action"
 	"sns/service/event"
@@ -35,6 +36,9 @@ func (handler *Handler) Default(w http.ResponseWriter, r *http.Request) {
 }
 
 //DefaultHandler handler
-func (handler *Handler) GetEvent(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, handler.eventSvc.Get())
+func (handler *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
+	err := handler.accountSvc.Create(&models.Account{
+		Name: "vamshi",
+	})
+	fmt.Fprint(w, "success done")
 }

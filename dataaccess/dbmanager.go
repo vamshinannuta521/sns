@@ -3,16 +3,26 @@ package dataaccess
 import (
 	"database/sql"
 	"errors"
+
+	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 )
+
+var log = logrus.NewEntry(logrus.New())
 
 type PostgresClient struct {
 	DB *sql.DB
 }
 
-func (pgClient *PostgresClient) OpenDb(dbname string, dbuser string) error {
-	db, err := sql.Open("postgres", "user="+dbuser+" dbname="+dbname+" host=localhost port=5432 sslmode=disable")
-	pgClient.DB = db
-	return err
+func NewClient() (*PostgresClient, error) {
+	db, err := sql.Open("postgres", "user=postgres dbname=sns host=localhost port=5432 sslmode=disable")
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	return &PostgresClient{
+		DB: db,
+	}, nil
 }
 
 func (cl *PostgresClient) Close() (err error) {

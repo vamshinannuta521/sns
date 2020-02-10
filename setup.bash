@@ -3,38 +3,43 @@
 ###################################################
 # Bash Shell script to create psql tables
 ###################################################
- 
-sudo su - postgres
-#Set the value of db name
-database="sns"
-account = "CREATE TABLE ACCOUNT(
-   ID INT PRIMARY KEY     NOT NULL,
-   EventAction_list TEXT    NULL,
-   NAME TEXT NOT NULL,
-)"
 
-subscription = "CREATE TABLE SUBSCRIBED_EVENT_ACTION(
-   ID INT PRIMARY KEY     NOT NULL,
-   Event_Id INT REFERENCES Event(id) NOT NULL,
-   Action_type INT NOT NULL,
-   Action_spec TEXT not null
-)"
 
-event = "CREATE TABLE EVENT(
-   ID INT PRIMARY KEY NOT NULL,
-   Name TEXT NOT NULL,
-   CreatedBy INT REFERENCES Account(id) NOT NULL
-)"
 
-trigger = "CREATE TABLE EVENT_TRIGGER_MESSAGE(
-	ID INT PRIMARY KEY NOT NULL,
-	Event_Id  INT REFERENCES Event(id) NOT NULL,
-	Message TEXT NULL,
-	CreatedBy INT REFERENCES Account(id) NOT NULL
-)"
+psql -h localhost -U postgres -p ${PGPORT:=5432} --echo-all << END_OF_SCRIPT
 
-createdb $database
-psql -d $database -c $account
-psql -d $database -c $event
-psql -d $database -c $subscription
-psql -d $database -c $trigger
+drop database sns;
+create database sns;
+
+\c sns
+
+
+CREATE TABLE if not exists ACCOUNT  (
+   id SERIAL PRIMARY KEY,
+   name varchar(200) NOT NULL,
+   CONSTRAINT unique_constraint UNIQUE (name)
+);
+
+CREATE TABLE if not exists SUBSCRIBED_EVENT_ACTION (
+   id SERIAL PRIMARY KEY,
+   event_id integer REFERENCES event(id) NOT NULL,
+   action_type varchar(50) NOT NULL,
+   action_spec varchar(5000) not null,
+   account_id integer REFERENCES account (id) not null
+);
+
+CREATE TABLE if not exists EVENT(
+   id SERIAL PRIMARY KEY,
+   name varchar(50) NOT NULL,
+   account_id integer REFERENCES Account(id) NOT NULL
+   CONSTRAINT unique_constraint UNIQUE (name)
+);
+
+CREATE TABLE if not exists EVENT_TRIGGER_MESSAGE(
+	id SERIAL PRIMARY KEY,
+	event_id  integer REFERENCES Event(id) NOT NULL,
+	message varchar(5000) default null,
+	account_id integer REFERENCES Account(id) NOT NULL
+);
+
+END_OF_SCRIPT

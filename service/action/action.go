@@ -1,8 +1,8 @@
 package action
 
 import (
-	"sns/dataaccess"
-	"sns/models"
+	// "sns/dataaccess"
+	// "sns/models"
 
 	"github.com/sirupsen/logrus"
 )
@@ -10,8 +10,8 @@ import (
 var log = logrus.NewEntry(logrus.New())
 
 type SvcInterface interface {
-	Get(string) (*models.SubscribedEventAction, error)
-	Create([]byte) error
+	// Get(string) (*models.SubscribedEventAction, error)
+	// Create([]byte) error
 }
 
 type Svc struct {
@@ -21,24 +21,24 @@ func NewSvc() *Svc {
 	return &Svc{}
 }
 
-func (s *Svc) Create(payload []byte) error {
-	var account models.Account
-	err := json.Unmarshal(payload, &account)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-	err = dataaccess.CreateAccount(account)
-	return err
+// func (s *Svc) Create(payload []byte) error {
+// 	var account models.Account
+// 	err := json.Unmarshal(payload, &account)
+// 	if err != nil {
+// 		log.Error(err)
+// 		return err
+// 	}
+// 	err = dataaccess.CreateAccount(account)
+// 	return err
 
-}
+// }
 
-func (s *Svc) Get(accountID string) (*models.Account, error) {
-	account, err := dataaccess.GetAccount(accountID)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-	return account, nil
+// func (s *Svc) Get(accountID string) (*models.Account, error) {
+// 	account, err := dataaccess.GetAccount(accountID)
+// 	if err != nil {
+// 		log.Error(err)
+// 		return nil, err
+// 	}
+// 	return account, nil
 
-}
+// }
