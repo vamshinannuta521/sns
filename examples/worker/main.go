@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
-	//"time"
+	"time"
 
 	"github.com/namsral/flag"
 	"github.com/rs/zerolog/log"
@@ -46,10 +46,10 @@ func main() {
 		MinBytes:        10e3, // 10KB
 		MaxBytes:        10e6, // 10MB
 		Partition:       0,
-//		MaxWait:         1 * time.Second, // Maximum amount of time to wait for new data to come when fetching batches of messages from kafka.
-//		ReadLagInterval: -1,
+		MaxWait:         2 * time.Second, // Maximum amount of time to wait for new data to come when fetching batches of messages from kafka.
+		ReadLagInterval: -1,
 	}
-	log.Info().Msgf('%s',)
+	//log.Info().Msgf('%s',)
 	reader := kafka.NewReader(config)
 	log.Info().Msgf("test")
 	defer reader.Close()
