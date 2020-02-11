@@ -49,14 +49,11 @@ func main() {
 		MaxWait:         2 * time.Second, // Maximum amount of time to wait for new data to come when fetching batches of messages from kafka.
 		ReadLagInterval: -1,
 	}
-	//log.Info().Msgf('%s',)
 	reader := kafka.NewReader(config)
-	log.Info().Msgf("test")
 	defer reader.Close()
 
 	for {
 		m, err := reader.ReadMessage(context.Background())
-		log.Info().Msgf("%s", m)
 
 		if err != nil {
 			log.Error().Msgf("error while receiving1 message: %s", err.Error())
