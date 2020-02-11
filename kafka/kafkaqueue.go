@@ -13,6 +13,7 @@ import (
 type KafkaQueue struct{
 	actionTopicMap map[string]string
 	logger *logrus.Entry
+	endpointUrl string
 }
 
 func GetQueueClient(logg *logrus.Entry) KafkaQueue{
@@ -20,7 +21,8 @@ func GetQueueClient(logg *logrus.Entry) KafkaQueue{
 	actionTopicMap["http"] = "HTTP"
 	actionTopicMap["sms"] = "SMS"
 	actionTopicMap["email"] = "EMAIL"
-	k := KafkaQueue{actionTopicMap,logg}
+	endpointUrl := "10.46.143.17:9092"
+	k := KafkaQueue{actionTopicMap,logg, endpointUrl}
 	return k
 }
 
@@ -34,7 +36,7 @@ func (k *KafkaQueue) Push(message string,actionType string) error{
 
 	k.logger.Error(topic)
 
-	conn, err := kafka.DialLeader(context.Background(), "tcp", "10.46.143.17:9092", topic, 0)
+	conn, err := kafka.DialLeader(context.Background(), "tcp", k.endpointUrl, topic, 0)
 	if err !=nil{
 		k.logger.Error(err)
 		return err
