@@ -1,8 +1,8 @@
 package models
 
 type Trigger struct {
-	ID        int    `json:"id"`
-	EventID   int    `json:"event_id"`
-	AccountID int    `json:"account_id"`
-	Message   string `json:"message"`
+	ID          string `json:"id"`
+	EventName   string `json:"event_name"`
+	AccountName string `json:"created_by"`
+	Message     string `json:"message"`
 }

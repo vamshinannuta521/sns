@@ -7,8 +7,8 @@ import (
 )
 
 func (cl *PostgresClient) CreateEvent(event *models.Event) error {
-	query := ` INSERT INTO event (name, account_id) VALUES ($1, $2)`
-	_, err := cl.DB.Exec(query, event.Name, event.AccountID)
+	query := ` INSERT INTO event (name, account_name) VALUES ($1, $2)`
+	_, err := cl.DB.Exec(query, event.Name, event.AccountName)
 	if err != nil {
 		logger.Errorf("Error in create event", err.Error())
 		return err
@@ -20,7 +20,7 @@ func (cl *PostgresClient) CreateEvent(event *models.Event) error {
 
 func (cl *PostgresClient) GetEvent(eventID string) (*models.Event, error) {
 
-	query := ` SELECT id, name, account_id FROM event where id = $1`
+	query := ` SELECT id, name, account_name FROM event where id = $1`
 	rows, err := cl.DB.Query(query, eventID)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (cl *PostgresClient) GetEvent(eventID string) (*models.Event, error) {
 }
 
 func (cl *PostgresClient) GetAllEvents() ([]*models.Event, error) {
-	query := `SELECT id, name, account_id FROM event`
+	query := `SELECT id, name, account_name FROM event`
 	rows, err := cl.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func getModelFromDBEntitiesEvent(rows *sql.Rows) ([]*models.Event, error) {
 	defer rows.Close()
 	for rows.Next() {
 		event := models.Event{}
-		err := rows.Scan(&event.ID, &event.Name, &event.AccountID)
+		err := rows.Scan(&event.ID, &event.Name, &event.AccountName)
 		if err != nil {
 			return nil, err
 		}

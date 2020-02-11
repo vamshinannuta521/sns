@@ -4,6 +4,7 @@ import (
 	"sns/dataaccess"
 	"sns/models"
 
+	"github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -17,19 +18,34 @@ type SvcInterface interface {
 
 type Svc struct {
 	*dataaccess.PostgresClient
+
+	ch chan *models.Trigger
 }
 
 func NewSvc(client *dataaccess.PostgresClient, log *logrus.Entry) *Svc {
 	logger = log
-	return &Svc{
+	svc := &Svc{
 		PostgresClient: client,
+		ch:             make(chan *models.Trigger, 100),
 	}
+
+	workers := 2
+	for i := 0; i < workers; i++ {
+		go svc.PushToKafka()
+	}
+
+	return svc
 }
 
 func (s *Svc) Create(trigger *models.Trigger) error {
+	trigger.ID = NewUUID()
 	err := s.CreateTrigger(trigger)
-	logger.Error(err)
-	return err
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+	s.ch <- trigger
+	return nil
 
 }
 
@@ -51,4 +67,22 @@ func (s *Svc) GetList() ([]*models.Trigger, error) {
 	}
 	return triggers, nil
 
+}
+
+func (s *Svc) PushToKafka() {
+	for trigger := range s.ch {
+		actions, err := s.GetAllActionsWithEventFilter(trigger.EventName)
+		if err != nil {
+			logger.Error(err)
+			continue
+		}
+		logger.Info(actions)
+
+	}
+}
+
+//NewUUID return new uuid
+func NewUUID() string {
+	UUID := uuid.NewV4()
+	return UUID.String()
 }
