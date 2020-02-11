@@ -45,6 +45,6 @@ CREATE TABLE if not exists Trigger(
 	account_name varchar(200) REFERENCES Account(name)
 );
 
-insert into action_type (type) values ('http'), ('https'), ('smtp');
+insert into action_type (type) values ('HTTP'), ('HTTPS'), ('EMAIL'), ('SMS');
 
 END_OF_SCRIPT
