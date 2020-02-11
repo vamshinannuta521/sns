@@ -1,32 +1,54 @@
-package kafka
+package main
 
 import (
 	"context"
 	"time"
 
 	"github.com/segmentio/kafka-go"
+	"github.com/sirupsen/logrus"
 )
 
-actionTopicMap := make(map[string]string)
-actionTopicMap[""]
+//to be changed as part of kafka client
 
-func Push(string message, string actionType) error{
-	topic := getTopicForActionType(actionType)
-	topic := "my-topic"
-partition := 0
-
-conn, _ := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", topic, partition)
-
-conn.SetWriteDeadline(time.Now().Add(10*time.Second))
-conn.WriteMessages(
-    kafka.Message{Value: []byte("one!")},
-    kafka.Message{Value: []byte("two!")},
-    kafka.Message{Value: []byte("three!")},
-)
-
-conn.Close()
+type KafkaQueue struct{
+	actionTopicMap map[string]string
+	logger *logrus.Entry
 }
-func Push(parent context.Context, key, value []byte) (err error) {
+
+func GetQueueClient(logg *logrus.Entry) KafkaQueue{
+	actionTopicMap := make(map[string]string)
+	actionTopicMap["http"] = "HTTP"
+	actionTopicMap["sms"] = "SMS"
+	actionTopicMap["email"] = "EMAIL"
+	k := KafkaQueue{actionTopicMap,logg}
+	return k
+}
+
+
+func (k *KafkaQueue) Push(message string,actionType string) error{
+	//log := logrus.NewEntry(logrus.New())
+	topic,_ := k.getTopicForActionType(actionType)
+	if topic == ""{
+		topic = "Auro"
+	}
+
+	k.logger.Error(topic)
+
+	conn, err := kafka.DialLeader(context.Background(), "tcp", "10.46.143.17:9092", topic, 0)
+	if err !=nil{
+		k.logger.Error(err)
+		return err
+	}
+
+	conn.SetWriteDeadline(time.Now().Add(10*time.Second))
+	conn.WriteMessages(kafka.Message{Value: []byte(message)})
+	
+	k.logger.Error("helllo")
+	conn.Close()
+	return nil
+}
+
+/*func Push(parent context.Context, key, value []byte) (err error) {
 	message := kafka.Message{
 		Key:   key,
 		Value: value,
@@ -34,12 +56,18 @@ func Push(parent context.Context, key, value []byte) (err error) {
 	}
 
 	return writer.WriteMessages(parent, message)
-}
+}*/
 
-func getTopicForActionType(actionType) string,error{
-	val, ok := actionTopicMap[actionType]
+func (k *KafkaQueue) getTopicForActionType(actionType string) (string,error) {	
+	val, ok := k.actionTopicMap[actionType]
 	if ok {
 		return val, nil
 	}
-	retrun nil,nil
+	return "", nil
+}
+
+func main(){
+	log := logrus.NewEntry(logrus.New())
+	cl := GetQueueClient(log)
+	cl.Push("moni","http")
 }

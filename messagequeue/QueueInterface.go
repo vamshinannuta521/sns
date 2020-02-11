@@ -1,9 +1,9 @@
 package messagequeue
 
-import (
-	"sns/models"
-)
-
 type QueueInterface interface {
-	Push(string message, string actionType) error
+	GetQueueClient(*logrus.Entry) QueueClient
+}
+
+type QueueClient interface {
+	Push(string, string) error
 }
