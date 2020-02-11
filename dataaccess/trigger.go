@@ -8,8 +8,8 @@ import (
 )
 
 func (cl *PostgresClient) CreateTrigger(trigger *models.Trigger) error {
-	query := ` INSERT INTO Trigger (event_id, account_id, message) VALUES ($1, $2, $3)`
-	_, err := cl.DB.Exec(query, trigger.EventID, trigger.AccountID, trigger.Message)
+	query := ` INSERT INTO Trigger (uuid, event_name, account_name, message) VALUES ($1, $2, $3, $4)`
+	_, err := cl.DB.Exec(query, trigger.ID, trigger.EventName, trigger.AccountName, trigger.Message)
 	if err != nil {
 		logger.Error(err)
 		return err
@@ -19,7 +19,7 @@ func (cl *PostgresClient) CreateTrigger(trigger *models.Trigger) error {
 
 func (cl *PostgresClient) GetTrigger(triggerID string) (*models.Trigger, error) {
 
-	query := ` SELECT id, event_id,  account_id, message FROM Trigger where id = $1`
+	query := ` SELECT id, event_name,  account_name, message FROM Trigger where id = $1`
 	rows, err := cl.DB.Query(query, triggerID)
 	if err != nil {
 		logger.Error(err)
@@ -52,7 +52,7 @@ func getModelFromDBEntitiesTrigger(rows *sql.Rows) ([]*models.Trigger, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var trigger models.Trigger
-		err := rows.Scan(&trigger.ID, &trigger.EventID, &trigger.AccountID, &trigger.Message)
+		err := rows.Scan(&trigger.ID, &trigger.EventName, &trigger.AccountName, &trigger.Message)
 		if err != nil {
 			logger.Error(err)
 			return nil, err

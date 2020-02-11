@@ -8,8 +8,8 @@ import (
 )
 
 func (cl *PostgresClient) CreateAction(action *models.Action) error {
-	query := ` INSERT INTO Action (event_id, action_type, action_spec, account_id) VALUES ($1, $2, $3, $4)`
-	_, err := cl.DB.Exec(query, action.EventID, action.ActionType, action.ActionSpec, action.AccountID)
+	query := ` INSERT INTO Action (event_name, action_type, action_spec, account_name) VALUES ($1, $2, $3, $4)`
+	_, err := cl.DB.Exec(query, action.EventName, action.ActionType, action.ActionSpec, action.AccountName)
 	if err != nil {
 		logger.Error(err)
 		return err
@@ -19,7 +19,7 @@ func (cl *PostgresClient) CreateAction(action *models.Action) error {
 
 func (cl *PostgresClient) GetAction(actionID string) (*models.Action, error) {
 
-	query := ` SELECT id, event_id, action_type, action_spec, account_id FROM action where id = $1`
+	query := ` SELECT id, event_name, action_type, action_spec, account_name FROM action where id = $1`
 	rows, err := cl.DB.Query(query, actionID)
 	if err != nil {
 		logger.Error(err)
@@ -37,8 +37,18 @@ func (cl *PostgresClient) GetAction(actionID string) (*models.Action, error) {
 }
 
 func (cl *PostgresClient) GetAllActions() ([]*models.Action, error) {
-	query := `SELECT id, event_id, action_type, action_spec, account_id FROM action`
+	query := `SELECT id, event_name, action_type, action_spec, account_name FROM action`
 	rows, err := cl.DB.Query(query)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+	return getModelFromDBEntitiesAction(rows)
+}
+
+func (cl *PostgresClient) GetAllActionsWithEventFilter(eventName string) ([]*models.Action, error) {
+	query := `SELECT id, event_name, action_type, action_spec, account_name FROM action where event_name = $1`
+	rows, err := cl.DB.Query(query, eventName)
 	if err != nil {
 		logger.Error(err)
 		return nil, err
@@ -52,7 +62,7 @@ func getModelFromDBEntitiesAction(rows *sql.Rows) ([]*models.Action, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var action models.Action
-		err := rows.Scan(&action.ID, &action.EventID, &action.ActionType, &action.ActionSpec, &action.AccountID)
+		err := rows.Scan(&action.ID, &action.EventName, &action.ActionType, &action.ActionSpec, &action.AccountName)
 		if err != nil {
 			logger.Error(err)
 			return nil, err

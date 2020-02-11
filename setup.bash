@@ -22,22 +22,29 @@ CREATE TABLE if not exists ACCOUNT  (
 CREATE TABLE if not exists EVENT(
    id SERIAL PRIMARY KEY,
    name varchar(50) NOT NULL UNIQUE,
-   account_id integer REFERENCES Account(id) NOT NULL
+   account_name varchar(200) REFERENCES Account(name)
+);
+
+CREATE TABLE if not exists Action_Type(
+   id SERIAL primary key,
+   type varchar(50) unique not null
 );
 
 CREATE TABLE if not exists Action (
    id SERIAL PRIMARY KEY,
-   event_id integer REFERENCES event(id) NOT NULL,
-   action_type varchar(50) NOT NULL,
-   action_spec varchar(5000) not null,
-   account_id integer REFERENCES account (id) not null
+   event_name varchar(50) REFERENCES event(name),
+   action_type varchar(50) references Action_type(type),
+   action_spec varchar(5000),
+   account_name varchar(200) REFERENCES Account(name)
 );
 
 CREATE TABLE if not exists Trigger(
-	id SERIAL PRIMARY KEY,
-	event_id  integer REFERENCES Event(id) NOT NULL,
+	uuid  UUID PRIMARY KEY,
+	event_name varchar(50) REFERENCES event(name),
 	message varchar(5000) default null,
-	account_id integer REFERENCES Account(id) NOT NULL
+	account_name varchar(200) REFERENCES Account(name)
 );
+
+insert into action_type (type) values ('http'), ('https'), ('smtp');
 
 END_OF_SCRIPT
