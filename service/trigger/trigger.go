@@ -1,7 +1,10 @@
 package trigger
 
 import (
+	"encoding/json"
+
 	"sns/dataaccess"
+	"sns/kafka"
 	"sns/models"
 
 	"github.com/satori/go.uuid"
@@ -20,6 +23,8 @@ type Svc struct {
 	*dataaccess.PostgresClient
 
 	ch chan *models.Trigger
+
+	kf *kafka.KafkaQueue
 }
 
 func NewSvc(client *dataaccess.PostgresClient, log *logrus.Entry) *Svc {
@@ -27,6 +32,7 @@ func NewSvc(client *dataaccess.PostgresClient, log *logrus.Entry) *Svc {
 	svc := &Svc{
 		PostgresClient: client,
 		ch:             make(chan *models.Trigger, 100),
+		kf:             kafka.GetQueueClient(log),
 	}
 
 	workers := 2
@@ -75,6 +81,14 @@ func (s *Svc) PushToKafka() {
 		if err != nil {
 			logger.Error(err)
 			continue
+		}
+		for _, action := range actions {
+			actionByte, err := json.Marshal(action)
+			if err != nil {
+				logger.Error(err)
+				continue
+			}
+			s.kf.Push(actionByte, action.ActionType)
 		}
 		logger.Info(actions)
 
