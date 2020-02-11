@@ -1,6 +1,6 @@
 package messagequeue
 
-type QueueInterface interface {
+type QueueFactory interface {
 	GetQueueClient(*logrus.Entry) QueueClient
 }
 

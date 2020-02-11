@@ -16,15 +16,26 @@ type KafkaQueue struct{
 	endpointUrl string
 }
 
-func GetQueueClient(logg *logrus.Entry) KafkaQueue{
+
+type KafkaFactory struct{
+	queue *KafkaQueue
+}
+
+func (kf *KafkaFactory) GetQueueClient(logg *logrus.Entry) *KafkaQueue{
+	if kf.queue != nil{
+		return kf.queue
+	}
+
 	actionTopicMap := make(map[string]string)
 	actionTopicMap["http"] = "HTTP"
 	actionTopicMap["sms"] = "SMS"
 	actionTopicMap["email"] = "EMAIL"
 	endpointUrl := "10.46.143.17:9092"
-	k := KafkaQueue{actionTopicMap,logg, endpointUrl}
+	k := &KafkaQueue{actionTopicMap,logg, endpointUrl}
+	kf.queue = k
 	return k
-}
+	}
+
 
 
 func (k *KafkaQueue) Push(message string,actionType string) error{
@@ -69,7 +80,8 @@ func (k *KafkaQueue) getTopicForActionType(actionType string) (string,error) {
 }
 
 func main(){
+	k := KafkaFactory{}
 	log := logrus.NewEntry(logrus.New())
-	cl := GetQueueClient(log)
+	cl := k.GetQueueClient(log)
 	cl.Push("moni","http")
 }
