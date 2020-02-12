@@ -19,7 +19,7 @@ func (cl *PostgresClient) CreateTrigger(trigger *models.Trigger) error {
 
 func (cl *PostgresClient) GetTrigger(triggerID string) (*models.Trigger, error) {
 
-	query := ` SELECT id, event_name,  account_name, message FROM Trigger where id = $1`
+	query := ` SELECT uuid, event_name,  account_name, message FROM Trigger where id = $1`
 	rows, err := cl.DB.Query(query, triggerID)
 	if err != nil {
 		logger.Error(err)
