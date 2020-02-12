@@ -2,6 +2,9 @@ package kafka
 
 import (
 	"context"
+	"io/ioutil"
+	"log"
+	"os"
 	"time"
 
 	kf "github.com/segmentio/kafka-go"
@@ -15,9 +18,24 @@ type KafkaQueue struct {
 	endpointUrl string
 }
 
+var kafkaAddr string
+
+func init() {
+	curDir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fileByte, err := ioutil.ReadFile(curDir + "/kafka/kafka.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	kafkaAddr = string(fileByte)
+
+}
+
 func GetQueueClient(logg *logrus.Entry) *KafkaQueue {
 
-	endpointUrl := "10.46.143.17:9092"
+	endpointUrl := kafkaAddr
 
 	return &KafkaQueue{logg, endpointUrl}
 
